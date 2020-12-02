@@ -8,6 +8,7 @@ class Dstv_object:
         self.header_info: Union[Dict,None] = None
         self.profile_description: Union[Dict,None] = None
         self.holes: Union[List, None] = None
+        self.external_contours = []
         self.parse_file_contents(filename)
 
     def parse_file_contents(self, filename: str):

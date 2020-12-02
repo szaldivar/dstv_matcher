@@ -1,9 +1,10 @@
-from . import ST, BO, not_implemented
+from . import ST, BO, AK, not_implemented
 from typing import List
 
 control_object = {
     "ST": ST.st_handle,
     "BO": BO.bo_handle,
+    "AK": AK.ak_handle,
 }
 
 def send_control_to_block(index: int, lines: List[str], len_list: int, obj) -> int:
