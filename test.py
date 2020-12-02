@@ -5,7 +5,6 @@ from DSTVimage import getObjectImg
 
 test = Dstv_object("./parser/pt9.nc1")
 
-pprint(test.holes)
 im = getObjectImg(test)
 
 cv2.imshow("Test", im)

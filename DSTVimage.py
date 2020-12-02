@@ -26,15 +26,33 @@ def drawHoles(obj, offset, im_X, im_Y, im, scaling):
         q_point = hole["q"]*scaling
         x_point = hole["x"]*scaling
         d_point = hole["d"]*scaling
+        slotted_y = round(hole["s_height"]*scaling)
+        slotted_x = round(hole["s_width"]*scaling)
         if (hole["reference"] == "bottom" or 
             hole["reference"] == "axis"):
             y = im_Y - (offset + q_point)
+            slotted_y = -slotted_y
         else:
             y = offset + q_point
         x = offset + x_point
         x = round(x)
         y = round(y)
-        cv2.circle(im, (x,y), round(d_point/2), 0, -1)
+        r = round(d_point/2)
+        # draw 4 circles, one for each corner
+        for aux_x in [x, x+slotted_x]:
+            for aux_y in [y, y+slotted_y]:
+                cv2.circle(im, (aux_x,aux_y), r, 0, -1)
+        # draw 2 rectangles to connect the circles
+        to_rec_1 = [
+            (x-r, y),
+            (x+slotted_x+r, y+slotted_y)
+        ]
+        to_rec_2 = [
+            (x, y+r),
+            (x+slotted_x, y+slotted_y-r)
+        ]
+        cv2.rectangle(im, to_rec_1[0], to_rec_1[1], 0, -1)
+        cv2.rectangle(im, to_rec_2[0], to_rec_2[1], 0, -1)
 
 def getObjectImg(obj):
     # get dimensions
