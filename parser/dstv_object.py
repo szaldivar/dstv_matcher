@@ -1,10 +1,12 @@
 from .code_blocks.general import check_for_comment, check_for_block_tag 
 from .code_blocks.control import send_control_to_block
-from typing import List
+from typing import List, Dict
 
 class Dstv_object: 
     
     def __init__(self, filename: str):
+        self.header_info: Dict = {}
+        self.profile_description: Dict = {}
         self.parse_file_contents(filename)
 
     def parse_file_contents(self, filename: str):
@@ -22,4 +24,6 @@ class Dstv_object:
                 # check for block tag
                 if (check_for_block_tag(line)):
                     # block tag found, send control to block
-                    index = send_control_to_block(index, lines, len_list)
+                    index = send_control_to_block(index, lines, len_list, self)
+                    if (index == -1):
+                        return
