@@ -10,12 +10,12 @@ def check_for_block_tag(line: str) -> bool:
         return line[0:2] != "  "
     return False
 
-def split_info_lines(line: str, FORMAT: List[int], fl: int) -> List[str]:
+def split_info_lines(line: str, FORMAT: List[int]) -> List[str]:
     ans: List[str] = []
     past = 0
-    for i in range(0, fl):
-        ans.append(line[past: past + FORMAT[i]])
-        past += FORMAT[i]
+    for i in FORMAT:
+        ans.append(line[past: past + i])
+        past += i
     return ans
 
 def read_face_column(char: str) -> Union[str,None]:

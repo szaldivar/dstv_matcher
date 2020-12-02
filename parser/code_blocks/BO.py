@@ -3,7 +3,6 @@ from typing import List, Union
 
 FORMAT: List[int] = [2, 1, 1, 10, 1, 10, 1, 10, 1, 9, 1, 1, 9, 1, 9, 1, 9];
 #                    0, 1, 2,  3, 4,  5, 6,  7, 8, 9,10,11,12,13,14,15,16
-FORMAT_LEN = len(FORMAT)
 
 def get_type_hole(char: str) -> Union[str,None]:
     aux = {
@@ -56,7 +55,7 @@ def read_values(line_info, face, reference, obj) -> bool:
 
 
 def read_line_info(line: str, prevFace: Union[str,None], prevReference: Union[str,None], obj) -> List[Union[str,None]]: 
-    line_info: List[str] = split_info_lines(line, FORMAT, FORMAT_LEN)
+    line_info: List[str] = split_info_lines(line, FORMAT)
     face = read_face_column(line_info[1])
     if (face == "previous"):
         face = prevFace
