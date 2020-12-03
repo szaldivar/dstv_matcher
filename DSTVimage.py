@@ -4,6 +4,44 @@ import numpy as np
 
 TARGET_SIZE = 1000
 
+def drawNotches(obj, offset, im_X, im_Y, im, scaling):
+    for contour in obj.external_contours:
+        arr = []
+        foundNotch = False
+        radius = 0.0
+        for point in contour:
+            if(foundNotch):
+                foundNotch =  not foundNotch
+                if(point["x"] > last["x"]):
+                    x_notch = round(point["x"]*scaling)
+                    y_notch = round(last["q"]*scaling)    
+                elif(point["x"] < last["x"]):
+                    if(point["q"] > last["q"]):
+                        x_notch = round(last["x"]*scaling)
+                        y_notch = round(point["q"]*scaling)
+                    else:
+                        x_notch = round(point["x"]*scaling)
+                        y_notch = round(last["q"]*scaling)
+                    
+                
+                r_notch = round(last["r"]*scaling*-1)
+
+                if (point["reference"] == "bottom" or 
+                    point["reference"] == "axis"):
+                    y_notch = im_Y - (offset + y_notch)
+                else:
+                    y_notch = offset + y_notch
+
+                x_notch = offset + x_notch
+
+                cv2.circle(im, (x_notch,y_notch), r_notch, 0, -1)         
+                
+            if(point["r"] != 0.0):
+                last = point
+                foundNotch = not foundNotch
+                
+                
+
 def drawContours(obj, offset, im_X, im_Y, im, scaling):
     for contour in obj.external_contours:
         arr = []
@@ -81,4 +119,5 @@ def getObjectImg(obj):
     im = np.zeros([im_Y, im_X], dtype=np.uint8)
     drawContours(obj, offset, im_X, im_Y, im, scaling)
     drawHoles(obj, offset, im_X, im_Y, im, scaling)
+    drawNotches(obj, offset, im_X, im_Y, im, scaling)
     return im
