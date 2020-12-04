@@ -103,6 +103,8 @@ def drawContours(obj, offset, im_X, im_Y, im, scaling):
         cv2.fillPoly( im, a3, 255 )
 
 def drawHoles(obj, offset, im_X, im_Y, im, scaling):
+    if (not obj.holes):
+        return
     for hole in obj.holes:
         q_point = hole["q"]*scaling
         x_point = hole["x"]*scaling
