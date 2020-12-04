@@ -3,7 +3,7 @@ from pprint import pprint
 from parser.dstv_object import Dstv_object
 from DSTVimage import getObjectImg
 
-test = Dstv_object("./parser/pt9.nc1")
+test = Dstv_object("./parser/pt60.nc1")
 
 im = getObjectImg(test)
 
