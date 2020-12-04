@@ -4,6 +4,87 @@ import numpy as np
 
 TARGET_SIZE = 1000
 
+def findCenter(actualPoint,prevPoint,radius):
+    h = [(actualPoint[0] + prevPoint[0] )/2,(actualPoint[1] + prevPoint[1])/2]
+
+    c = getDistance(h,actualPoint)
+    b = abs(h[0]- actualPoint[0])
+    a = abs(h[1]- actualPoint[1])
+
+    C = math.sqrt(pow(radius,2)- pow(c,2))
+
+    if(b == 0):
+        return (0,0)
+        #ta facil
+    elif(a == 0):
+        return(0,0)
+        #ta facil tambien segun
+    else:
+        scaleFactor = C/c
+        A = a * scaleFactor
+        B = b * scaleFactor
+        if(actualPoint[1] > prevPoint[1]):
+            if(actualPoint[0] > prevPoint[0]):
+                B = -B
+        else:
+            A = -A
+            if(actualPoint[0] > prevPoint[0]):
+                B = -B
+        if(radius < 0):
+            A = -A
+            B = -B
+        return (math.floor(h[0] + A),math.floor(h[1] + B))
+        
+
+
+def getDistance(point1,point2):
+    a = pow(abs(point1[1] - point2[1]),2)
+    b = pow(abs(point1[0] - point2[0]),2)
+    c = math.sqrt(a+b)
+    return c
+
+
+def drawNotches(obj, offset, im_X, im_Y, im, scaling):
+    for contour in obj.external_contours:
+        arr = []
+        foundNotch = False
+        radius = 0.0
+        for point in contour:
+            if(foundNotch):
+                if (point["reference"] == "bottom" or point["reference"] == "axis"):
+                    actualY = im_Y - offset - (point["q"])* scaling
+                    prevY = im_Y - offset - (last["q"])*scaling
+                else:
+                    actualY = offset + (point["q"])* scaling
+                    prevY = offset + (last["q"])*scaling
+
+                actualX = offset + (point["x"])*scaling
+                prevX = offset + (last["x"])*scaling
+                r = last["r"]* scaling
+                actual = (actualX,actualY)
+                prev = (prevX, prevY)
+
+                foundNotch =  False
+                center = findCenter(actual,prev,r)
+                
+                p1 = math.atan2((actual[1]-center[1]),(actual[0]-center[0]))*(180/3.1415)
+                p2 = math.atan2((prev[1]-center[1]),(prev[0]-center[0]))*(180/3.1415)
+                if(r < 0):
+                    r = math.floor(-r)
+                    if(actual[1] < prev[1]):
+                        cv2.ellipse(im,center,(r,r),0,p2-360,p1,0,-1)
+                    else:
+                        cv2.ellipse(im,center,(r,r),0,p1,p2,0,-1)
+                else: 
+                    r = math.ceil(r)
+                    cv2.ellipse(im,center,(r,r),0,p1,p2,255,-1)
+                         
+            if(point["r"] != 0.0):
+                last = point
+                foundNotch = True
+                
+                
+
 def drawContours(obj, offset, im_X, im_Y, im, scaling):
     for contour in obj.external_contours:
         arr = []
@@ -83,4 +164,5 @@ def getObjectImg(obj):
     im = np.zeros([im_Y, im_X], dtype=np.uint8)
     drawContours(obj, offset, im_X, im_Y, im, scaling)
     drawHoles(obj, offset, im_X, im_Y, im, scaling)
+    drawNotches(obj, offset, im_X, im_Y, im, scaling)
     return im
