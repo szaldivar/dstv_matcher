@@ -33,7 +33,7 @@ def findCenter(actualPoint,prevPoint,radius):
         if(radius < 0):
             A = -A
             B = -B
-        return (round(h[0] + A),round(h[1] + B))
+        return (math.floor(h[0] + A),math.floor(h[1] + B))
         
 
 
@@ -66,17 +66,18 @@ def drawNotches(obj, offset, im_X, im_Y, im, scaling):
 
                 foundNotch =  False
                 center = findCenter(actual,prev,r)
-                print("Centro",center)
-                print("Actual",actual)
-                print("Prev",prev)
-                print("r", r)
-
+                
+                p1 = math.atan2((actual[1]-center[1]),(actual[0]-center[0]))*(180/3.1415)
+                p2 = math.atan2((prev[1]-center[1]),(prev[0]-center[0]))*(180/3.1415)
                 if(r < 0):
-                    r_notch = round(-r)
-                    cv2.circle(im, center, r_notch, 0, -1)
+                    r = math.floor(-r)
+                    if(actual[1] < prev[1]):
+                        cv2.ellipse(im,center,(r,r),0,p2-360,p1,0,-1)
+                    else:
+                        cv2.ellipse(im,center,(r,r),0,p1,p2,0,-1)
                 else: 
-                    r_notch = round(r)
-                    cv2.circle(im, center, r_notch, 255, -1)
+                    r = math.ceil(r)
+                    cv2.ellipse(im,center,(r,r),0,p1,p2,255,-1)
                          
             if(point["r"] != 0.0):
                 last = point
