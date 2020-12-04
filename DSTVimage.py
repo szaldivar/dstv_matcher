@@ -4,6 +4,46 @@ import numpy as np
 
 TARGET_SIZE = 1000
 
+def findCenter(actualPoint,prevPoint,radius):
+    h = [(actualPoint[0] + prevPoint[0] )/2,(actualPoint[1] + prevPoint[1])/2]
+
+    c = getDistance(h,actualPoint)
+    b = abs(h[0]- actualPoint[0])
+    a = abs(h[1]- actualPoint[1])
+
+    C = math.sqrt(pow(radius,2)- pow(c,2))
+
+    if(b == 0):
+        return (0,0)
+        #ta facil
+    elif(a == 0):
+        return(0,0)
+        #ta facil tambien segun
+    else:
+        scaleFactor = C/c
+        A = a * scaleFactor
+        B = b * scaleFactor
+        if(actualPoint[1] > prevPoint[1]):
+            if(actualPoint[0] > prevPoint[0]):
+                B = -B
+        else:
+            A = -A
+            if(actualPoint[0] > prevPoint[0]):
+                B = -B
+        if(radius < 0):
+            A = -A
+            B = -B
+        return (round(h[0] + A),round(h[1] + B))
+        
+
+
+def getDistance(point1,point2):
+    a = pow(abs(point1[1] - point2[1]),2)
+    b = pow(abs(point1[0] - point2[0]),2)
+    c = math.sqrt(a+b)
+    return c
+
+
 def drawNotches(obj, offset, im_X, im_Y, im, scaling):
     for contour in obj.external_contours:
         arr = []
@@ -11,52 +51,36 @@ def drawNotches(obj, offset, im_X, im_Y, im, scaling):
         radius = 0.0
         for point in contour:
             if(foundNotch):
-                foundNotch =  not foundNotch
-                if(point["x"] > last["x"]):
-                    if(point["q"] > last["q"]) or (last["r"] > 0):
-                        x_notch = round(point["x"]*scaling)
-                        y_notch = round(last["q"]*scaling)
-                    else:
-                        x_notch = round(last["x"]*scaling)
-                        y_notch = round(point["q"]*scaling)
-                elif(point["x"] < last["x"]):
-                    if(point["q"] > last["q"]) and (last["r"] < 0):
-                        x_notch = round(last["x"]*scaling)
-                        y_notch = round(point["q"]*scaling)
-                    else:
-                        x_notch = round(point["x"]*scaling)
-                        y_notch = round(last["q"]*scaling)
-                    
-                
-
-                if (point["reference"] == "bottom" or 
-                    point["reference"] == "axis"):
-                    y_notch = im_Y - (offset + y_notch)
+                if (point["reference"] == "bottom" or point["reference"] == "axis"):
+                    actualY = im_Y - offset - (point["q"])* scaling
+                    prevY = im_Y - offset - (last["q"])*scaling
                 else:
-                    y_notch = offset + y_notch
+                    actualY = offset + (point["q"])* scaling
+                    prevY = offset + (last["q"])*scaling
 
-                x_notch = offset + x_notch
+                actualX = offset + (point["x"])*scaling
+                prevX = offset + (last["x"])*scaling
+                r = last["r"]* scaling
+                actual = (actualX,actualY)
+                prev = (prevX, prevY)
 
-                if(last["r"] < 0):
-                    r_notch = round(last["r"]*scaling*-1)
-                    print("r sin scalling",last["r"])
-                    print("x:",x_notch)
-                    print("y:",y_notch)
-                    print("r con",r_notch)
-                    print("Scalling:", scaling)
-                    cv2.circle(im, (x_notch,y_notch), r_notch, 0, -1)
-                else:
-                    r_notch = round(last["r"]*scaling)
-                    print("r sin scalling",last["r"])
-                    print("x:",x_notch)
-                    print("y:",y_notch)
-                    print("r con",r_notch)
-                    print("Scalling:", scaling)
-                    cv2.circle(im, (x_notch,y_notch), r_notch, 0, -1)
+                foundNotch =  False
+                center = findCenter(actual,prev,r)
+                print("Centro",center)
+                print("Actual",actual)
+                print("Prev",prev)
+                print("r", r)
+
+                if(r < 0):
+                    r_notch = round(-r)
+                    cv2.circle(im, center, r_notch, 0, -1)
+                else: 
+                    r_notch = round(r)
+                    cv2.circle(im, center, r_notch, 255, -1)
                          
             if(point["r"] != 0.0):
                 last = point
-                foundNotch = not foundNotch
+                foundNotch = True
                 
                 
 
@@ -137,5 +161,5 @@ def getObjectImg(obj):
     im = np.zeros([im_Y, im_X], dtype=np.uint8)
     drawContours(obj, offset, im_X, im_Y, im, scaling)
     drawHoles(obj, offset, im_X, im_Y, im, scaling)
-    #drawNotches(obj, offset, im_X, im_Y, im, scaling)
+    drawNotches(obj, offset, im_X, im_Y, im, scaling)
     return im
